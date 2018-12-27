@@ -1,0 +1,157 @@
+<apex:page controller="ShippingNavigatorController" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false" >
+    <html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+        <meta charset="utf-8"/>
+        <title>Waypoints in Directions</title>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 100%;
+                width: 100%;
+
+            }
+            #distance {
+                position: absolute;
+                height: 40px;
+                top: 2%;
+                right: 2%;
+                display: table-cell;
+                vertical-align: middle;
+                line-height: 40px;
+                text-align: center;
+                color: rgb(0, 0, 0);
+                font-family: Roboto, Arial, sans-serif;
+                font-size: 18px;
+                background-color: rgb(255, 255, 255);
+                padding: 0 17px;
+                border-radius: 2px;
+                background-clip: padding-box;
+                box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+                font-weight: 500;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="map"></div>
+    <span id="distance">distance</span>
+    <script>
+        var coord = {!location};
+        var directionsService;
+        var directionsDisplay;
+   		var map;
+        var distance = 0;
+        var stoks;
+        var objectName = 'order';
+        function initMap() {
+            directionsService = new google.maps.DirectionsService();
+            directionsDisplay = new google.maps.DirectionsRenderer;
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 5,
+                center: {lat: coord[0], lng: coord[1]}
+            });
+            
+            if (!!stoks === true && stoks.length != 0) {
+            	for (let i = 0; i < stoks.length; i++) {
+                        let coordinates = stoks[i].coordinates.split("-$-");
+                        new google.maps.Marker({
+                        position: {lat: +coordinates[0], lng: +coordinates[1]},
+                        map: map,
+                        title: stoks[i].address
+                      });
+                    }
+            } else {
+            	Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ShippingNavigatorController.getOrders}',
+                objectName,   
+                function(result){
+                    console.log(result);
+                    stoks = result;
+                    if (stoks.length > 0) {
+                    	for (let i = 0; i < result.length; i++) {
+                            let coordinates = result[i].coordinates.split("-$-");
+                            new google.maps.Marker({
+                            position: {lat: +coordinates[0], lng: +coordinates[1]},
+                            map: map,
+                            title: result[i].address
+                          });
+                        }
+                    }                     
+                }, 
+                    {escape: true}
+                );
+            }                        
+        }
+        
+        function renderDirections(result) { 
+            let directionsRenderer = new google.maps.DirectionsRenderer(); 
+            directionsRenderer.setMap(map); 
+            directionsRenderer.setDirections(result);
+            let route = result.routes[0];
+            let distancePanel = document.getElementById('distance');
+            for (let i = 0; i < route.legs.length; i++) {
+                distance += Math.round((route.legs[i].distance.value / 1000) * 100 ) / 100;
+            }
+            distancePanel.innerHTML = distance.toFixed(2) + ' km';
+        }
+        
+        function requestDirections(start, end, waypts) { 
+           directionsService.route({ 
+              	origin: start,
+           		waypoints: waypts,
+              	destination: end, 
+              	travelMode: google.maps.DirectionsTravelMode.DRIVING 
+           }, function(result) { 
+              	renderDirections(result); 
+           }); 
+       	}
+        
+        window.addEventListener("message", function(event) {
+            let data = JSON.parse(event.data);
+            if (data.isUpdate) {
+                objectName = data.objectName;
+                stoks = null;
+            	initMap();
+            } else if (data.orders) {
+            	let orders = data.orders;
+                let wayBack = data.wayBack;
+                if (orders.length > 1) {
+                    let locations = [];
+                    for(let i = 0; i < orders.length; i++) {
+                        let coord = orders[i].split('-$-');
+                        let location = {lat: +coord[0], lng: +coord[1]};
+                        locations.push(location);
+                    }
+                    let start = locations[0];
+                    let end = locations[locations.length - 1];
+        
+                    let waypts = [];
+                    if(locations.length > 2) {
+                        for (let i = 1; i < locations.length - 1; i++) {
+                            waypts.push({
+                                location: locations[i],
+                                stopover: true
+                            });
+                        }
+                    }
+                    distance = 0;
+                    initMap();
+                    if (wayBack) {
+                        requestDirections(end, start, []);
+                    }                
+                    requestDirections(start, end, waypts);
+                }
+            }                        
+        }, false);
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4FLZcneRdwnpIj4aQrbC2mX1_kmG3Q5o&callback=initMap"></script>
+    </body>
+    </html>
+
+</apex:page>

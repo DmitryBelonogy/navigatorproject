@@ -1,0 +1,9 @@
+.THIS span.slds-truncate {
+    white-space: pre !important;
+}
+
+.THIS .refresh.slds-grid.slds-grid_vertical-align-center.slds-grid_align-end {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+}
