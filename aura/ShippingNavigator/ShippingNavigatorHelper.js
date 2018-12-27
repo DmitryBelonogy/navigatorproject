@@ -1,10 +1,11 @@
 ({
 	initHelper : function(component, event) {
         let now = new Date();
-        let hours = now.getHours() <= 10 ? '0' + now.getHours() : now.getHours();
-        let minutes = now.getMinutes() <= 10 ? '0' + now.getMinutes() : now.getMinutes();
+        let hours = now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
+        let minutes = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
         component.set('v.lastUpdate', hours + ':' + minutes);
 		let action = component.get("c.getOrders");
+        action.setParams({ selectedObject : component.get("v.object") });
         action.setCallback(this, function(response) {
             let state = response.getState();
             if (state === "SUCCESS") {
@@ -52,9 +53,15 @@
     updateHelper : function(component, event) {
         this.initHelper(component, event);
         let message = {
-            isUpdate: true
+            isUpdate: true,
+            objectName: component.get('v.object')
         };
         this.pushDataToMap(component, message);
+    },
+    selectObject : function(component, event) {
+        component.set('v.object', component.find('select').get('v.value'));
+        console.log(component.find('select').get('v.value'));
+        this.updateHelper(component, event);
     },
     showToast : function(message, title, type) {
         let toastEvent = $A.get('e.force:showToast');
@@ -65,4 +72,4 @@
         });
         toastEvent.fire();
     }
-})
+});

@@ -9,7 +9,10 @@
     createRoute: function(component, event, helper){
         helper.createRoutehelper(component, event);
     },
-    updateOrders: function(component, event, helper){
+    updateData: function(component, event, helper){
         helper.updateHelper(component, event);
+    },
+    handelSelectObject: function(component, event, helper) {
+        helper.selectObject(component, event);
     }
 });

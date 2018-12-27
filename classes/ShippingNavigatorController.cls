@@ -1,22 +1,34 @@
-global class ShippingNavigatorController {
+global with sharing class ShippingNavigatorController {
     @AuraEnabled
     @RemoteAction
-    global static List<ShippingNavigatorController.LocationWrapper> getOrders() {
-        
-        List<Order> orders = OrderRepositiry.getOrders();
+    global static List<ShippingNavigatorController.LocationWrapper> getOrders(String selectedObject) {
         
         List<LocationWrapper> locations = new List<LocationWrapper>();
         
-        locations.addAll(getStocks());
-        
-        if (!orders.isEmpty()) {
-            for (Order o : orders) {
-                LocationWrapper wrap = new LocationWrapper('' + o.ShippingStreet + '\n' + o.ShippingCity + '\n' + 'Amount: ' + o.TotalAmount + UserInfo.getDefaultCurrency(), o.ShippingLatitude + '-$-' + o.ShippingLongitude);
-                locations.add(wrap);
+        if (selectedObject == 'order') {
+            List<Order> orders = NavigatorRepositiry.getOrders();
+            
+            locations.addAll(getStocks());
+            
+            if (!orders.isEmpty()) {
+                for (Order o : orders) {
+                    LocationWrapper wrap = new LocationWrapper('' + o.ShippingStreet + '\n' + o.ShippingCity + '\n' + 'Amount: ' + o.TotalAmount + UserInfo.getDefaultCurrency(), o.ShippingLatitude + '-$-' + o.ShippingLongitude);
+                    locations.add(wrap);
+                }
+            } 
+        } else if (selectedObject == 'account') {
+            List<Contract> accountsByContracts = NavigatorRepositiry.getAccounts();
+            
+            if (!accountsByContracts.isEmpty()) {
+                for (Contract c : accountsByContracts) {
+                    LocationWrapper wrap = new LocationWrapper(''+ c.Account.Name + '\n' + c.Account.ShippingStreet + '\n' + c.Account.ShippingCity, c.Account.ShippingLatitude + '-$-' + c.Account.ShippingLongitude);
+                    locations.add(wrap);
+                }
             }
         }
         
         return locations;
+        
     }
     
     private static List<LocationWrapper> getStocks() {

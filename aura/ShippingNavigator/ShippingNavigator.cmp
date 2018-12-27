@@ -4,25 +4,28 @@
     <aura:attribute name="width" type="String" description=" width of parent region"/>
     <aura:attribute name="wayBack" type="Boolean" default="true" />
     <aura:attribute name="lastUpdate" type="String" default="" />
+    <aura:attribute name="object" type="String" default="order" />
 
     <aura:handler  name="init" value="{!this}" action="{!c.doinit}"/>
 
     <lightning:flexipageRegionInfo width="{!v.width}"/>
     
-        <lightning:card title="Order navigator" class="orderNavigator">
+        <lightning:card title="Navigator" class="orderNavigator">
             <div class="refresh slds-grid slds-grid_vertical-align-center slds-grid_align-end">
                 <span>Last updated: {! v.lastUpdate }</span>
-            	<lightning:buttonIcon class="slds-m-around_small" iconName="utility:refresh"  alternativeText="refresh" onclick="{!c.updateOrders }"/>
+            	<lightning:buttonIcon class="slds-m-around_small" iconName="utility:refresh"  alternativeText="refresh" onclick="{!c.updateData }"/>
             </div>            
             <lightning:layout multipleRows="true">                
                 <lightning:layoutItem size="{! v.width == 'SMALL' ? '12' : '6'}" padding = "around-small">
+                    <lightning:select aura:id="select" name="select" label="" onchange="{! c.handelSelectObject }" class="slds-size_5-of-12">
+                        <option value="order">Orders</option>
+                        <option value="account">Companies</option>
+                    </lightning:select>
                     <lightning:dualListbox aura:id = "options"
                                            name = "orders"
-                                           label = "Select Orders"
                                            sourceLabel = "Available"
                                            selectedLabel = "Selected"
                                            addButtonLabel = "add order"
-                                           fieldLevelHelp = "Select orders to create route"
                                            options = "{!v.options}"
                                            onchange = "{! c.handleChange }"
                                            class="slds-m-bottom_small"/>

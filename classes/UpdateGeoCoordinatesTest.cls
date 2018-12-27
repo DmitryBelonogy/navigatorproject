@@ -35,5 +35,13 @@ public class UpdateGeoCoordinatesTest {
             o.ShippingStreet = 'Test street';
         }
         update orders;
+        Account[] accs = [SELECT Id, ShippingCity, ShippingStreet FROM Account];
+        for (Account acc : accs) {
+            acc.ShippingStreet = 'Test street';
+            acc.ShippingCity = 'Test city';
+        }
+        update accs;
+        System.debug([SELECT Id, ShippingCity, ShippingStreet, ShippingLongitude, ShippingLatitude FROM Account]);
+        System.debug([SELECT Id, ShippingCity, ShippingStreet, ShippingLongitude, ShippingLatitude FROM Order]);
     }
 }

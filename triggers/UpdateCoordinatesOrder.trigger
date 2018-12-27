@@ -1,15 +1,6 @@
 trigger UpdateCoordinatesOrder on Order (after insert, after update) {
     if (Trigger.IsInsert) {
-        System.enqueueJob(new UpdateGeoCoordinates(Trigger.newMap.keySet()));
-        List<OpderTopic__c> ots = new List<OpderTopic__c>();
-        for (Order order : Trigger.new) {
-            OpderTopic__c ot = new OpderTopic__c(
-            	Name = 'topicFor' + order.Id,
-                Order__c = order.Id
-            );
-            ots.add(ot);
-        }
-        insert ots;
+        System.enqueueJob(new UpdateGeoCoordinates(Trigger.newMap.keySet()));        
     }
     if (Trigger.IsUpdate) {
         Set<Id> orderForUpdate = new Set<Id>();
@@ -19,8 +10,6 @@ trigger UpdateCoordinatesOrder on Order (after insert, after update) {
                 orderForUpdate.add(ord.Id);
             }
         }
-        if (!orderForUpdate.isEmpty()) {
-            System.enqueueJob(new UpdateGeoCoordinates(orderForUpdate));
-        }
+        if (!orderForUpdate.isEmpty()) System.enqueueJob(new UpdateGeoCoordinates(orderForUpdate));
     }
 }

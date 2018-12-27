@@ -46,6 +46,8 @@ public class ShippingNavigatorControllerTest {
             ));
             order.ShippingCity = 'Tets city1';
             order.StatusCode = 'A';
+            order.ShippingLatitude = 15.15;
+            order.ShippingLongitude = 15.15;
 			order.Status = 'Activated';
         }
         insert oi;
@@ -55,8 +57,10 @@ public class ShippingNavigatorControllerTest {
     }
     @IsTest
     public static void testGetOrders() {
-        ShippingNavigatorController.LocationWrapper[] orders = ShippingNavigatorController.getOrders();
+        ShippingNavigatorController.LocationWrapper[] orders = ShippingNavigatorController.getOrders('order');
         System.assertEquals(6, orders.size());
+        ShippingNavigatorController.LocationWrapper[] accs = ShippingNavigatorController.getOrders('account');
+        System.assertEquals(0, accs.size());
     }
     
     @IsTest

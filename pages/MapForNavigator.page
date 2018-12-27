@@ -46,6 +46,7 @@
    		var map;
         var distance = 0;
         var stoks;
+        var objectName = 'order';
         function initMap() {
             directionsService = new google.maps.DirectionsService();
             directionsDisplay = new google.maps.DirectionsRenderer;
@@ -67,6 +68,7 @@
             } else {
             	Visualforce.remoting.Manager.invokeAction(
                 '{!$RemoteAction.ShippingNavigatorController.getOrders}',
+                objectName,   
                 function(result){
                     console.log(result);
                     stoks = result;
@@ -112,6 +114,7 @@
         window.addEventListener("message", function(event) {
             let data = JSON.parse(event.data);
             if (data.isUpdate) {
+                objectName = data.objectName;
                 stoks = null;
             	initMap();
             } else if (data.orders) {
