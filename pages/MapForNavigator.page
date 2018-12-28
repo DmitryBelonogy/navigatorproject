@@ -56,7 +56,7 @@
                 center: {lat: coord[0], lng: coord[1]}
             });
             
-            if (!!stoks === true && stoks.length != 0) {
+            if (stoks && stoks.length != 0) {
             	for (let i = 0; i < stoks.length; i++) {
                         let coordinates = stoks[i].coordinates.split("-$-");
                         new google.maps.Marker({

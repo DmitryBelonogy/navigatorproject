@@ -17,42 +17,22 @@ public class UpdateGeoCoordinates implements Queueable, Database.AllowsCallouts 
         
         List<sObject> records = Database.query(query);
         if (!records.isEmpty()) {
-            for (sObject rec : records) {
-                if (objectType == 'Order') {
-                    Order record = (Order) rec;                
-                    if(record.ShippingCity != null && record.ShippingStreet != null) {
+            for (sObject record : records) {               
+                if(record.get('ShippingCity') != null && record.get('ShippingStreet') != null) {
             
-                        String address = '';
-                        address += '+' + record.ShippingCity;
-                        address += '+' + record.ShippingStreet;
+                    String address = '';
+                    address += '+' + record.get('ShippingCity');
+                    address += '+' + record.get('ShippingStreet');
                         
-                        HttpResponse res = getResponse(address);
+                     HttpResponse res = getResponse(address);
 
-                        if (res.getStatusCode() != 200) continue;
-                        GoogleJSONParser.Response prasResp = GoogleJSONParser.parse(res.getBody());
-                        if (prasResp != null && !prasResp.Results.isEmpty()) {                            
-                            record.ShippingLongitude = (Double) prasResp.Results[0].Geometry.Location.lng;
-                            record.ShippingLatitude = (Double) prasResp.Results[0].Geometry.Location.lat;
-                        }
-                    } 
-                } else if (objectType == 'Account') {
-                    Account record = (Account) rec;                
-                    if(record.ShippingCity != null && record.ShippingStreet != null) {
-            
-                        String address = '';
-                        address += '+' + record.ShippingCity;
-                        address += '+' + record.ShippingStreet;
-                        
-                        HttpResponse res = getResponse(address);
-
-                        if (res.getStatusCode() != 200) continue;
-                        GoogleJSONParser.Response prasResp = GoogleJSONParser.parse(res.getBody());
-                        if (prasResp != null && !prasResp.Results.isEmpty()) {                            
-                            record.ShippingLongitude = (Double) prasResp.Results[0].Geometry.Location.lng;
-                            record.ShippingLatitude = (Double) prasResp.Results[0].Geometry.Location.lat;
-                        }
-                    }
-                }                            
+                     if (res.getStatusCode() != 200) continue;
+                     GoogleJSONParser.Response prasResp = GoogleJSONParser.parse(res.getBody());
+                     if (prasResp != null && !prasResp.Results.isEmpty()) {                            
+                         record.put('ShippingLongitude', (Double) prasResp.Results[0].Geometry.Location.lng);
+                         record.put('ShippingLatitude', (Double) prasResp.Results[0].Geometry.Location.lat);
+                     }
+                }                                        
             }
             update records;
 		}        
