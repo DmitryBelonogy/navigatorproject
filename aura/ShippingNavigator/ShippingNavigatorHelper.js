@@ -4,9 +4,9 @@
         let hours = now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
         let minutes = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
         component.set('v.lastUpdate', hours + ':' + minutes);
-		let action = component.get("c.getOrders");
-        action.setParams({ selectedObject : component.get("v.object") });
-        action.setCallback(this, function(response) {
+		let getOrders = component.get("c.getOrders");
+        getOrders.setParams({ selectedObject : component.get("v.object") });
+        getOrders.setCallback(this, function(response) {
             let state = response.getState();
             if (state === "SUCCESS") {
                 let resp = response.getReturnValue();
@@ -34,7 +34,20 @@
                 }
             }
         });
-        $A.enqueueAction(action);
+        $A.enqueueAction(getOrders);
+        
+        if (component.get('v.nameSpace') === '') {
+            let getNameSpace = component.get("c.getNameSpace");;
+            getNameSpace.setCallback(this, function(response) {
+                let state = response.getState();
+                if (state === "SUCCESS") {
+                    let resp = response.getReturnValue();
+                    
+                    component.set('v.nameSpace', resp);
+                }
+            });
+            $A.enqueueAction(getNameSpace);
+        }  
 	},
     createRoutehelper : function(component, event) {
         let orders = component.get("v.selectedOptionsList");
@@ -46,9 +59,11 @@
         this.pushDataToMap(component, message);
     },
     pushDataToMap : function(component, data) {
-        let vfOrigin = 'https://' + window.location.host.split('.')[0] + '--c.visualforce.com';
+        let vfOrigin1 = 'https://' + window.location.host.split('.')[0] + '--' + component.get('v.nameSpace') + '.visualforce.com';
+        let vfOrigin2 = 'https://' + window.location.host.split('.')[0] + '--' + component.get('v.nameSpace') + '.visual.force.com';
         let vfWindow = component.find("vfFrame").getElement().contentWindow;
-        vfWindow.postMessage(JSON.stringify(data), vfOrigin);
+        vfWindow.postMessage(JSON.stringify(data), vfOrigin1);
+        vfWindow.postMessage(JSON.stringify(data), vfOrigin2);
     },
     updateHelper : function(component, event) {
         this.initHelper(component, event);

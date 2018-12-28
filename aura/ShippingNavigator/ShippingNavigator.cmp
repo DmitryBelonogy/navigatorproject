@@ -5,6 +5,7 @@
     <aura:attribute name="wayBack" type="Boolean" default="true" />
     <aura:attribute name="lastUpdate" type="String" default="" />
     <aura:attribute name="object" type="String" default="order" />
+    <aura:attribute name="nameSpace" type="String" default="" />
 
     <aura:handler  name="init" value="{!this}" action="{!c.doinit}"/>
 

@@ -31,6 +31,13 @@ global with sharing class ShippingNavigatorController {
         
     }
     
+    @AuraEnabled
+    public static String getNameSpace() {
+        string np = [SELECT NamespacePrefix FROM Organization].NamespacePrefix;
+        if (np == null) return 'c';
+        return np;
+    }
+    
     private static List<LocationWrapper> getStocks() {
         Map<String,StockLocations__c> stockMap = StockLocations__c.getAll();
         List<LocationWrapper> locations = new List<LocationWrapper>();

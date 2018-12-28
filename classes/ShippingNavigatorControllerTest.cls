@@ -69,4 +69,10 @@ public class ShippingNavigatorControllerTest {
         List<Double> coord = controller.getLocation();
         System.assertEquals(15.15, coord[0]);
     }
+    
+    @IsTest
+    public static void testGetNameSpace() {
+        String np = ShippingNavigatorController.getNameSpace();
+        System.assertNotEquals(null, np);
+    }
 }
